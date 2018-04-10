@@ -14,6 +14,9 @@
         function CommentCreate()
         {
             var idCheck = '@ViewBag.sessionID';
+            var KoreaPattern = /[ㄱ-힣]/;
+            var EnglishPattern = /[a-zA-Z]/;
+            var SpacePattern = /\s/;
             if (idCheck == null || idCheck == "") {
                 alert("로그인후 게시글 작성이 가능합니다." + idCheck+"님")
                 return false;
@@ -22,6 +25,13 @@
                 alert("댓글을 입력해주십시오.")
                 $("#Contents").focus();
                 return false;
+            }
+            //댓글에 공백만 있을경우 댓글입력 막기
+            if (!KoreaPattern.test($('#Contents').val()) && !EnglishPattern.test($('#Contents').val()) && SpacePattern.test($('#Contents').val()))
+            {
+                        alert("내용을 입력해주십시오.")
+                        $("#Contents").focus();
+                        return false;
             }
             $.ajax({
                 type: "GET",
