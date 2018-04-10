@@ -61,15 +61,27 @@
 
         //저장 유효성검사
         function fnSaveCheck() {
-
+            var KoreaPattern = /[ㄱ-힣]/;
+            var EnglishPattern = /[a-zA-Z]/;
+            var SpacePattern = /\s/;
             if ($("#Title").val() == "") {
                 alert("제목을 입력해주십시오.")
-                $("#MemberID").focus();
+                $("#Title").focus();
+                return false;
+            }
+            if (!KoreaPattern.test($("#Title").val()) && !EnglishPattern.test($("#Title").val()) && SpacePattern.test($("#Title").val())) {
+                alert("제목을 입력해주십시오.")
+                $("#Title").focus();
                 return false;
             }
             if ($("#Contents").val() == "") {
                 alert("내용을 입력해주십시오.")
-                $("#MemberPWD").focus();
+                $("#Contents").focus();
+                return false;
+            }
+            if (!KoreaPattern.test($("#Contents").val()) && !EnglishPattern.test($("#Contents").val()) && SpacePattern.test($("#Contents").val())) {
+                alert("내용을 입력해주십시오.")
+                $("#Contents").focus();
                 return false;
             }
             return true;
