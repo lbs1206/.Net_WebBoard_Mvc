@@ -1,0 +1,134 @@
+﻿@model HomePage.Models.MemberVO
+
+@{
+    ViewBag.Title = "MyPage";
+}
+
+<h2>MyPage</h2>
+<div style="float:right">
+    <button type="button" id="btnSave" onclick="return fnDeleteCheck('@ViewBag.MemberID');" class="btn btn-lg btn-lgr-str">회원 탈퇴</button>
+</div>
+<form method="post" action="@Url.Action("update","MyPage")" class="wpcf7-form">
+    <table class="table">
+        <tr>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <td>아이디</td>
+            <td><input type="text" id="MemberID" value="@ViewBag.MemberID"/></td>
+        </tr>
+        <tr>
+            <td>비밀번호</td>
+            <td><input type="text" id="MemberPWD" value="@ViewBag.MemberPWD" /></td>
+        </tr>
+        <tr>
+            <td>이름</td>
+            <td><input type="text" id="MemberName" value="@ViewBag.MemberName" /></td>
+        </tr>
+        <tr>
+            <td>이메일</td>
+            <td><input type="text" id="Email" value="@ViewBag.Email" /></td>
+        </tr>
+        <tr>
+            <td>전화번호</td>
+            <td><input type="text" id="Telephone" value="@ViewBag.Telephone" /></td>
+        </tr>
+
+    </table>
+
+    <div class="dividewhite2"></div>
+    <div class="field text-center">
+        <button type="button" id="btnSave" onclick="return fnUpdateCheck();" class="btn btn-lg btn-lgr-str">수정</button>
+        <button type="button" id="btnBack" onclick="return history.back();" class="btn btn-lg btn-lgr-str">취소</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            $("#MemberID").attr("disabled", true);
+            
+             
+
+
+
+            var result = '@ViewBag.Result';
+            if (result == 'OK') {
+                alert("정상적으로 저장되었습니다.");
+            }
+
+            if (result == 'FAIL') {
+                alert("저장작업을 실패하였습니다.");
+            }
+        });
+
+        function fnUpdateCheck() {
+            alert("수정하시겠습니까?");
+
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: '/MyPage/update?memberid=' + $("#MemberID").val() +
+                    "&memberpwd=" + $("#MemberPWD").val() +
+                    "&membername=" + $("#MemberName").val() +
+                    "&email=" + $("#Email").val() +
+                    "&telephone=" + $("#Telephone").val(),
+                data: "{}",
+                dataType: "json"
+            })
+                .done(function (response) {
+                    //debugger;
+
+                    if (response == "OK") {
+                        alert("수정되었습니다.");
+                        location.href = "/Home";
+                    } else {
+                        alert("수정에 실패했습니다..");
+                    }
+                })
+                .fail(function (data) {
+                    if (data.responseText !== '') {
+                        alert(data.responseText);
+                    } else {
+                        alert("에러가 발생했습니다");
+                    }
+                });
+        }
+
+            //삭제
+            function fnDeleteCheck(id) {
+                if (confirm("회원탈퇴를 하시겠습니까?"))
+                {
+                    $.ajax({
+                        type: "GET",
+                        contentType: "application/json; charset=utf-8",
+                        url: '/MyPage/delete?memberid=' + id,
+                        data: "{}",
+                        dataType: "json"
+                    })
+                        .done(function (response) {
+                            //debugger;
+
+                            if (response == "OK") {
+                                alert("삭제되었습니다.");
+                                location.href = "/Home";
+                            } else {
+                                alert("삭제가 되지 않았습니다. 오류뜸.");
+                            }
+                        })
+                        .fail(function (data) {
+                            if (data.responseText !== '') {
+                                alert(data.responseText);
+                            } else {
+                                alert("에러가 발생했습니다");
+                            }
+                        });
+                }
+                
+
+            }
+
+    </script>
+}

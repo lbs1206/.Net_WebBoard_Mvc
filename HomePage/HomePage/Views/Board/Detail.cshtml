@@ -1,0 +1,261 @@
+﻿@model IEnumerable<HomePage.Models.ArticleCommentsVO>
+@using HomePage.Models
+@using System.Text;
+@{
+    ViewBag.Title = "Detail";
+}
+<h2>상세보기</h2>
+<div>
+    번호 : @ViewBag.No
+    <div class="visible-lg">
+        @if (ViewBag.RegistMemberID.Equals(ViewBag.sessionID))
+        {
+        <div style="float:right">
+            <button type="button" onclick="Update(); ">수정 </button>
+            <button type="button" onclick="return fnDeleteCheck('@ViewBag.ArticleIDX');">삭제 </button>
+        </div>
+            
+        }
+        else
+        {
+
+        }
+        <table class="table">
+            <tr>
+                <th>제목</th>
+                <td>@ViewBag.Subject</td>
+                <th>조회수</th>
+                <td>@ViewBag.ViewCount</td>
+            </tr>
+            <tr>
+                <th>작성자</th>
+                <td>@ViewBag.RegistMemberID</td>
+                <th>등록일</th>
+                <td>@ViewBag.RegistDate</td>
+            </tr>
+            <tr>
+                <td colspan="4"><textarea style="width:1100px;height:250px;border:initial;overflow:visible;text-overflow:ellipsis;resize:none;" wrap="hard" readonly>@ViewBag.Contents</textarea> </></td>
+
+            </tr>
+            <tr>
+                <th onclick="detail(@ViewBag.No-1);">< 이전글</th>
+                <td></td>
+                <td></td>
+                <th onclick="detail(@ViewBag.No+1);" style="float:right">다음글 ></th>
+            </tr>
+        </table>
+    </div>
+    @if (ViewBag.Total != 0)
+    {
+        <table class="table">
+        <tr>
+            <th width="50%">
+                댓글
+            </th>
+            <th width="25%">
+                등록일
+            </th>
+            <th width="15%">
+                작성자
+            </th>
+            <th width="10%">
+
+            </th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td width="50%">
+                    @Html.DisplayFor(modelItem => item.Comments)
+                </td>
+                <td width="25%">
+                    @Html.DisplayFor(modelItem => item.RegistDate)
+                </td>
+                <td width="15%">
+                    @Html.DisplayFor(modelItem => item.MemberID)
+                </td>
+                <td width="10%">
+                    @if (item.MemberID.Equals(ViewBag.sessionID))
+                    {
+                        <button type="button" onclick="return CommentUpdate('@item.CommentID');">수정</button>
+                        <button type="button" onclick="return CommentDelete('@item.CommentID');">삭제</button>
+                    }else{}
+                </td>
+            </tr>
+        }
+
+    </table>
+    
+        int Max = ViewBag.Total / 10;
+        if (ViewBag.Total - (Max * 10) > 0) { Max++; } //페이지번호 최대값
+        int start = ViewBag.start; //초기 아래 행 버튼 시작번호
+        int end = ViewBag.end;//초기 아래 행 버튼 끝번호
+        if (Max > end)
+        {
+            end = start + 9;
+        }
+        else
+        {
+            end = Max;
+        }
+    
+    <div style="text-align:center">
+        <form name="frm" id="frm" action="Board/List?pN=1" method="get" class="form-inline">
+            <input type="hidden" name="pN" id="pN" />
+
+            @if (start != 1)//prev 버튼 생성
+            {
+                int temp1 = start - 10;
+                <button type="button" onclick="return search_page('/Board/Detail?No='+@ViewBag.No+'&pN='+@end+'&start='+@temp1);">< </button>
+            }
+            @for (int j = start; j <= end; j++)
+            {
+                <button type="button" onclick="return search_page('/Board/Detail?No='+@ViewBag.No+'&pN='+@j+'&start='+@start);">@j </button>
+            }
+            @if (end < Max)
+            {
+                int temp2 = start + 10;
+                <button type="button" onclick="return search_page('/Board/Detail?No='+@ViewBag.No+'&pN='+@start+'&start='+@temp2);">> </button>
+            }
+
+        </form>
+    </div>
+    }
+    else
+    {
+
+    }
+
+    @RenderPage("/Views/ArticleComments/Create.cshtml", new { ArticleIDX = ViewBag.ArticleIDX })
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: "/Board/ViewCount?ArticleIDX=" + @ViewBag.ArticleIDX +
+                    "&ViewCount=" + @ViewBag.ViewCount,
+                data: "{}",
+                dataType: "json"
+            })
+                .done(function (response) {
+                    if (response == "OK") {
+
+                    } else {
+                    }
+                })
+                .fail(function (data) {
+                    if (data.responseText !== '') {
+                        alert(data.responseText);
+                    } else {
+                        alert("에러가 발생했습니다");
+                    }
+                });
+        });
+
+        function detail(No)
+        {
+
+
+            if (No ==@ViewBag.Max+1) {
+                alert("이글이 마지막글입니다.")
+            } else if (No == 0) {
+                alert("이글이 첫번째 글입니다.")
+            } else
+            {
+                location.href = "/Board/Detail?No=" + No+"&pN=1&start=1";
+            }
+
+        }
+
+        function Update(ArticleIDX,ViewCount)
+        {
+
+            var udd =  "/Board/Update?ArticleIDX=@ViewBag.ArticleIDX&No=@ViewBag.No";
+            location.href = udd;
+        }
+
+
+         //삭제
+            function fnDeleteCheck(ArticleIDX) {
+                if (confirm("게시글을 삭제하시겠습니까?"))
+                {
+                    $.ajax({
+                        type: "GET",
+                        contentType: "application/json; charset=utf-8",
+                        url: '/Board/delete?ArticleIDX=' + ArticleIDX,
+                        data: "{}",
+                        dataType: "json"
+                    })
+                        .done(function (response) {
+                            //debugger;
+
+                            if (response == "OK") {
+                                alert("삭제되었습니다.");
+                                location.href = "/Home";
+                            } else {
+                                alert("삭제가 되지 않았습니다. 오류뜸.");
+                            }
+                        })
+                        .fail(function (data) {
+                            if (data.responseText !== '') {
+                                alert(data.responseText);
+                            } else {
+                                alert("에러가 발생했습니다");
+                            }
+                        });
+                }
+                
+
+            }
+
+        function search_page(url) {
+            alert(url)
+            location.href = url;
+        }
+        function CommentDelete(CommentID) {
+            if (confirm("댓글을 삭제하시겠습니까?"))
+            {
+                $.ajax({
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    url: '/ArticleComments/CommentDelete?CommentID=' + CommentID,
+                    data: "{}",
+                    dataType: "json"
+                })
+                    .done(function (response) {
+                        //debugger;
+
+                        if (response == "OK") {
+                            alert("삭제되었습니다.");
+                            window.location.reload();
+                        } else {
+                            alert("삭제가 되지 않았습니다. 오류뜸.");
+                        }
+                    })
+                    .fail(function (data) {
+                        if (data.responseText !== '') {
+                            alert(data.responseText);
+                        } else {
+                            alert("에러가 발생했습니다");
+                        }
+                    });
+            }
+            
+
+        }
+        function CommentUpdate(CommentID)
+        {
+            var popUrl = "/ArticleComments/CommentUpdateView?CommentID="+CommentID;	//팝업창에 출력될 페이지 URL
+
+            var popOption = "width=370, height=360, resizable=no, scrollbars=no, status=no;";    //팝업창 옵션(optoin)
+
+            window.open(popUrl, "", popOption);
+
+        }
+    </script>
+}
+

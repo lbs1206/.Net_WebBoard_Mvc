@@ -1,0 +1,42 @@
+﻿<div>
+    <textarea id="Comment" name="Comment">@ViewBag.Comments</textarea>
+    <button type="button" onclick="return CommentUpdate()">수정</button>
+</div>
+
+@section Scripts {
+    <script>
+        function CommentUpdate()
+        {
+            alert("수정하시겠습니까?");
+            if ($('#Comment').val()=="")
+            {
+                alert("글을 작성해 주세요.")
+                return false;
+            }
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: "/ArticleComments/UpdateCheck?Comment=" + $("#Comment").val() +
+                    "&CommentID=" + @ViewBag.CommentID,
+                data: "{}",
+                dataType: "json"
+            })
+                .done(function (response) {
+                    if (response == "OK") {
+                        alert("수정되었습니다.");
+                        window.opener.location.reload();
+                        window.close();
+                    } else {
+                        alert("수정에 실패했습니다..");
+                    }
+                })
+                .fail(function (data) {
+                    if (data.responseText !== '') {
+                        alert(data.responseText);
+                    } else {
+                        alert("에러가 발생했습니다");
+                    }
+                });
+        }
+    </script>
+}

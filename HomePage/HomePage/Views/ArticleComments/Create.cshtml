@@ -1,0 +1,55 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>댓글 작성란</h2>
+<div>
+    <textarea id="Contents" name="Contents" ></textarea>
+    <button type="button" onclick="return CommentCreate()" >등록</button>
+</div>
+
+
+    <script>
+        function CommentCreate()
+        {
+            var idCheck = '@ViewBag.sessionID';
+            if (idCheck == null || idCheck == "") {
+                alert("로그인후 게시글 작성이 가능합니다." + idCheck+"님")
+                return false;
+            }
+            if ($("#Contents").val() == "") {
+                alert("댓글을 입력해주십시오.")
+                $("#Contents").focus();
+                return false;
+            }
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: "/ArticleComments/CommentCreate?ArticleIDX=" + @ViewBag.ArticleIDX+"&Contents="+$("#Contents").val(),
+                data: "{}",
+                dataType: "json"
+            })
+                .done(function (response) {
+                    //debugger;
+
+                    if (response == "OK") {
+                        alert("댓글 작성하셨습니다.");
+                        window.location.reload();
+                    } else {
+                        alert("댓글 작성하지 못했습니다.");
+                    }
+                })
+                .fail(function (data) {
+                    if (data.responseText !== '') {
+                        alert(data.responseText);
+                    } else {
+                        alert("에러가 발생했습니다");
+                    }
+                });//ajax
+
+        }
+
+
+    </script>
+

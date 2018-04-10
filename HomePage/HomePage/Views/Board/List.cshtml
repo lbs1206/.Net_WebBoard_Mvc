@@ -1,0 +1,165 @@
+﻿@model IEnumerable<HomePage.Models.ArticlesVO>
+@using HomePage.Models
+@using System.Text;
+@{
+                /**/
+
+                ViewBag.Title = "List";
+}
+<div>
+    <h2>게시판</h2>
+    <div style="float:right">
+        <button type="button" onclick="create();">작성하기 </button>
+    </div>
+    
+</div>
+
+
+@if (ViewBag.Total != 0)
+{
+    <table class="table">
+        <tr>
+            <th width="10%" style="text-align:center">
+                번호
+            </th>
+            <th width="40%" style="text-align:center">
+                제목
+            </th>
+            <th width="10%" style="text-align:center">
+                조회수
+            </th>
+            <th width="25%" style="text-align:center">
+                등록일
+            </th>
+            <th width="15%" style="text-align:center">
+                작성자
+            </th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td style="text-align:center">
+                    @Html.DisplayFor(modelItem => item.No)
+                </td>
+                <td onclick="detail('@item.No');">
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td style="text-align:center">
+                    @Html.DisplayFor(modelItem => item.ViewCount)
+                </td>
+                <td style="text-align:center">
+                    @Html.DisplayFor(modelItem => item.RegistDate)
+                </td>
+                <td style="text-align:center">
+                    @Html.DisplayFor(modelItem => item.RegistMemberID)
+                    <input type="hidden" id="ArticleIDX" name="AritcleIDX" value="@item.ArticleIDX" />
+                </td>
+            </tr>
+        }
+
+    </table>
+    
+        int Max = ViewBag.Total / 10;
+        if (ViewBag.Total - (Max * 10) > 0) { Max++; } //페이지번호 최대값
+        int start = ViewBag.start; //초기 아래 행 버튼 시작번호
+        int end = ViewBag.end;//초기 아래 행 버튼 끝번호
+        if (Max > end)
+        {
+            end = start + 9;
+        }
+        else
+        {
+            end = Max;
+        }
+    
+    <div style="text-align:center">
+        <form name="frm" id="frm" action="Board/List?pN=1" method="get" class="form-inline">
+            <input type="hidden" name="pN" id="pN" />
+
+            @if (start != 1)//prev 버튼 생성
+            {
+                int temp1 = start - 10;
+                <button type="button" onclick="return search_page('/Board/List?pN='+@end+'&start='+@temp1);">< </button>
+            }
+            @for (int j = start; j <= end; j++)
+            {
+                <button type="button" onclick="return search_page('/Board/List?pN='+@j+'&start='+@start);">@j </button>
+            }
+            @if (end < Max)
+            {
+                int temp2 = start + 10;
+                <button type="button" onclick="return search_page('/Board/List?pN='+@start+'&start='+@temp2);">> </button>
+            }
+
+        </form>
+    </div>
+        } else
+        {
+            <h4>게시글이 없습니다.</h4>
+        }
+<hr />
+<div>
+    <form name="frmse" id="frmse" method="get" class="form-inline">
+        <input type="text" id="searchText" name="searchText" placeholder="검색할 제목을 입력해주세요." required />
+        <button type="button" onclick="return searchButton();">검색</button>
+    </form>
+</div>
+
+
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+        });
+        function search_page(url) {
+            alert(url)
+            location.href = url;
+        }
+
+        function create() {
+            location.href = "/Board/Create";
+        }
+
+        function detail(No) {
+
+            location.href = "/Board/Detail?No=" + No + "&pN=1&start=1";
+        }
+        function searchButton() {
+            if ($('#searchText').val() == "") {
+                alert('검색어를 입력해 주세요')
+                $('#searchText').focus();
+            } else {
+                alert($("#searchText").val() + " 검색하겠습니다.")
+                $.ajax({
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    url: "/Board/SearchCheck?KeyWord=" + $("#searchText").val(),
+                    data: "{}",
+                    dataType: "json"
+                })
+                    .done(function (response) {
+                        if (response == "OK") {
+                            alert("해당 검색어와 관련된 게시글이 없습니다.")
+                            $('#searchText').val('');
+                            $('#searchText').focus();
+                        } else {
+                            alert("해당 검색어와 관련된 게시글을 찾았습니다.")
+
+                            location.href = "/Board/SearchPage?KeyWord=" + $('#searchText').val() + "&pN=1&start=1";
+                        }
+                    })
+                    .fail(function (data) {
+                        if (data.responseText !== '') {
+                            alert(data.responseText);
+                        } else {
+                            alert("에러가 발생했습니다");
+                        }
+                    });
+
+            }
+
+
+        }
+    </script>
+}

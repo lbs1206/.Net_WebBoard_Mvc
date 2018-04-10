@@ -1,0 +1,117 @@
+﻿@model IEnumerable<HomePage.Models.ArticleCommentsVO>
+@using HomePage.Models
+@using System.Text;
+@{
+    ViewBag.Title = "CommentList";
+}
+
+<h2>CommentList</h2>
+<div>
+    안녕하세요 댓글목록창입니다.
+    @ViewBag.ArticleIDX;
+</div>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Comments)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.RegistDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.MemberID)
+        </th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td >
+                @Html.DisplayFor(modelItem => item.Comments)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RegistDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberID)
+                <input type="hidden" id="ArticleIDX" name="AritcleIDX" value="@item.ArticleIDX" />
+            </td>
+        </tr>
+    }
+
+</table>
+@{
+    int Max = ViewBag.Total / 10;
+    if (ViewBag.Total - (Max * 10) > 0) { Max++; } //페이지번호 최대값
+    int start = ViewBag.start; //초기 아래 행 버튼 시작번호
+    int end = ViewBag.end;//초기 아래 행 버튼 끝번호
+    if (Max > end)
+    {
+        end = start + 9;
+    }
+    else
+    {
+        end = Max;
+    }
+}
+<div>
+    <form name="frm" id="frm" action="Board/List?pN=1" method="get" class="form-inline">
+        <input type="hidden" name="pN" id="pN" />
+
+        @if (start != 1)//prev 버튼 생성
+        {
+            int temp1 = start - 10;
+            <button type="button" onclick="return search_page('/ArticleComments/CommentList?ArticleIDX='+@ViewBag.ArticleIDX+'&pN='+@end+'&start='+@temp1);">< </button>
+        }
+        @for (int j = start; j <= end; j++)
+        {
+            <button type="button" onclick="return search_page('/ArticleComments/CommentList?ArticleIDX='+@ViewBag.ArticleIDX+'&pN='+@j+'&start='+@start);">@j </button>
+        }
+        @if (end < Max)
+        {
+            int temp2 = start + 10;
+            <button type="button" onclick="return search_page('/ArticleComments/CommentList?ArticleIDX='+@ViewBag.ArticleIDX+'&pN='+@start+'&start='+@temp2);">> </button>
+        }
+
+    </form>
+</div>
+
+
+
+
+    <script>
+        $(document).ready(function () {
+
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: '/ArticleComments/CommentList?ArticleIDX' + ViewBag.ArticleIDX + "&pageNum=1&start=1",
+                data: "{}",
+                dataType: "json"
+            })
+                .done(function (response) {
+                    //debugger;
+
+                    if (response == "OK") {
+                        alert("파라미터 성공.");
+                    } else {
+                        alert("파라미터 실패.");
+                    }
+                })
+                .fail(function (data) {
+                    if (data.responseText !== '') {
+                        alert(data.responseText);
+                    } else {
+                        alert("에러가 발생했습니다");
+                    }
+                });//ajax
+        });//document
+
+        function search_page(url) {
+            alert(url)
+            location.href = url;
+        }
+    </script>
+        
+
+
+

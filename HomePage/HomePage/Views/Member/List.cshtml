@@ -1,0 +1,165 @@
+﻿@model IEnumerable<HomePage.Models.MemberVO>
+@using HomePage.Models
+@using System.Text;
+@{
+    ViewBag.Title = "List";
+}
+
+<h2>회원 목록</h2>
+
+
+<table class="table">
+    <tr>
+        <th>
+            아이디
+        </th>
+        <th>
+            비밀번호
+        </th>
+        <th>
+            이름
+        </th>
+        <th>
+            이메일
+        </th>
+        <th>
+            전화번호
+        </th>
+        <th>
+            등록일
+        </th>
+        <th>
+            코드
+        </th>
+        <th></th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberPWD)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Telephone)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EntryDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Code)
+            </td>
+            @if (item.MemberID.Equals("Master"))
+            {
+
+            }
+            else
+            {
+                <td>
+                <button type="button" onclick="return fnMemberDelete('@Html.DisplayFor(modelItem => item.MemberID)');">삭제</button>
+            </td>
+            }
+            
+        </tr>
+    }
+
+</table>
+@{ 
+    int Max = ViewBag.Total / 10;
+    if (ViewBag.Total - (Max * 10) > 0) { Max++; } //페이지번호 최대값
+    int start = ViewBag.start; //초기 아래 행 버튼 시작번호
+    int end = ViewBag.end;//초기 아래 행 버튼 끝번호
+    if (Max > end)
+    {
+        end = start+9;
+    }
+    else {
+        end = Max;
+    }
+}
+<div style="text-align:center">
+    <form name="frm" id="frm" action="Member/List?pN=1" method="get" class="form-inline">
+        <input type="hidden" name="pN" id="pN" />
+
+            @if (start != 1)//prev 버튼 생성
+            {
+                int temp1 = start - 10;
+                <button type="button" onclick="return search_page('/Member/List?pN='+@end+'&start='+@temp1);">< </button>
+            }
+            @for (int j = start; j <= end; j++)
+            {
+                <button type="button" onclick="return search_page('/Member/List?pN='+@j+'&start='+@start);">@j </button>
+            }
+            @if (end < Max)
+            {
+                int temp2 = start + 10;
+                <button type="button" onclick="return search_page('/Member/List?pN='+@start+'&start='+@temp2);">> </button>
+            }
+
+    </form>
+</div>
+
+
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            
+        });
+        //삭제
+        function fnMemberDelete(id) {
+            if (confirm("삭제하시겠습니까?"))
+            {
+                $.ajax({
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    url: '/Member/delete?memberid=' + id,
+                    data: "{}",
+                    dataType: "json"
+                })
+                    .done(function (response) {
+                        //debugger;
+
+                        if (response == "OK") {
+                            alert("삭제되었습니다.");
+                            location.reload();
+                        } else {
+                            alert("삭제가 되지 않았습니다. 오류뜸.");
+                            alert($('MemberID').val());
+                        }
+                    })
+                    .fail(function (data) {
+                        if (data.responseText !== '') {
+                            alert(data.responseText);
+                            alert(id);
+                        } else {
+                            alert("에러가 발생했습니다");
+                        }
+                    });
+
+            }
+            
+           
+        }
+
+        function search_page(url) {
+            alert(url)
+            location.href = url;
+
+        }
+
+
+
+
+
+    </script>
+}

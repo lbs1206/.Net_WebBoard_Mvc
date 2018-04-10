@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="HomePageModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="ArticleComments">
+    <Key>
+      <PropertyRef Name="MemberID" />
+      <PropertyRef Name="ArticleIDX" />
+    </Key>
+    <Property Name="MemberID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="ArticleIDX" Type="Int32" Nullable="false" />
+    <Property Name="Comments" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="RegistDate" Type="DateTime" Nullable="false" Precision="3" />
+    <NavigationProperty Name="Articles" Relationship="Self.FK_Articles_TO_ArticleComments" FromRole="ArticleComments" ToRole="Articles" />
+    <NavigationProperty Name="Members" Relationship="Self.FK_Members_TO_ArticleComments" FromRole="ArticleComments" ToRole="Members" />
+  </EntityType>
+  <EntityType Name="ArticleFiles">
+    <Key>
+      <PropertyRef Name="FileIDX" />
+    </Key>
+    <Property Name="FileIDX" Type="Int32" Nullable="false" />
+    <Property Name="AritcleIDX" Type="Int32" Nullable="false" />
+    <Property Name="FilePath" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="FileName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="FileSize" Type="Int32" />
+    <Property Name="FileFormat" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="UploadDate" Type="DateTime" Nullable="false" Precision="3" />
+    <NavigationProperty Name="Articles" Relationship="Self.FK_Articles_TO_ArticleFiles" FromRole="ArticleFiles" ToRole="Articles" />
+  </EntityType>
+  <EntityType Name="Articles">
+    <Key>
+      <PropertyRef Name="AritcleIDX" />
+    </Key>
+    <Property Name="AritcleIDX" Type="Int32" Nullable="false" />
+    <Property Name="Title" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Contents" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="ViewCount" Type="Int32" />
+    <Property Name="RegistMemberID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="RegistDate" Type="DateTime" Precision="3" />
+    <Property Name="ModifyDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="ArticleComments" Relationship="Self.FK_Articles_TO_ArticleComments" FromRole="Articles" ToRole="ArticleComments" />
+    <NavigationProperty Name="ArticleFiles" Relationship="Self.FK_Articles_TO_ArticleFiles" FromRole="Articles" ToRole="ArticleFiles" />
+    <NavigationProperty Name="Members" Relationship="Self.FK_Members_TO_Articles" FromRole="Articles" ToRole="Members" />
+  </EntityType>
+  <EntityType Name="Members">
+    <Key>
+      <PropertyRef Name="MemberID" />
+    </Key>
+    <Property Name="MemberID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="MemberPWD" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="MemberName" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Telephone" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+    <Property Name="EntryDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="Code" Type="Int32" />
+    <NavigationProperty Name="ArticleComments" Relationship="Self.FK_Members_TO_ArticleComments" FromRole="Members" ToRole="ArticleComments" />
+    <NavigationProperty Name="Articles" Relationship="Self.FK_Members_TO_Articles" FromRole="Members" ToRole="Articles" />
+  </EntityType>
+  <Association Name="FK_Articles_TO_ArticleComments">
+    <End Role="Articles" Type="Self.Articles" Multiplicity="1" />
+    <End Role="ArticleComments" Type="Self.ArticleComments" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Articles">
+        <PropertyRef Name="AritcleIDX" />
+      </Principal>
+      <Dependent Role="ArticleComments">
+        <PropertyRef Name="ArticleIDX" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Members_TO_ArticleComments">
+    <End Role="Members" Type="Self.Members" Multiplicity="1" />
+    <End Role="ArticleComments" Type="Self.ArticleComments" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Members">
+        <PropertyRef Name="MemberID" />
+      </Principal>
+      <Dependent Role="ArticleComments">
+        <PropertyRef Name="MemberID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Articles_TO_ArticleFiles">
+    <End Role="Articles" Type="Self.Articles" Multiplicity="1" />
+    <End Role="ArticleFiles" Type="Self.ArticleFiles" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Articles">
+        <PropertyRef Name="AritcleIDX" />
+      </Principal>
+      <Dependent Role="ArticleFiles">
+        <PropertyRef Name="AritcleIDX" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Members_TO_Articles">
+    <End Role="Members" Type="Self.Members" Multiplicity="1" />
+    <End Role="Articles" Type="Self.Articles" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Members">
+        <PropertyRef Name="MemberID" />
+      </Principal>
+      <Dependent Role="Articles">
+        <PropertyRef Name="RegistMemberID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="HomePageEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="ArticleComments" EntityType="Self.ArticleComments" />
+    <EntitySet Name="ArticleFiles" EntityType="Self.ArticleFiles" />
+    <EntitySet Name="Articles" EntityType="Self.Articles" />
+    <EntitySet Name="Members" EntityType="Self.Members" />
+    <AssociationSet Name="FK_Articles_TO_ArticleComments" Association="Self.FK_Articles_TO_ArticleComments">
+      <End Role="Articles" EntitySet="Articles" />
+      <End Role="ArticleComments" EntitySet="ArticleComments" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Members_TO_ArticleComments" Association="Self.FK_Members_TO_ArticleComments">
+      <End Role="Members" EntitySet="Members" />
+      <End Role="ArticleComments" EntitySet="ArticleComments" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Articles_TO_ArticleFiles" Association="Self.FK_Articles_TO_ArticleFiles">
+      <End Role="Articles" EntitySet="Articles" />
+      <End Role="ArticleFiles" EntitySet="ArticleFiles" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Members_TO_Articles" Association="Self.FK_Members_TO_Articles">
+      <End Role="Members" EntitySet="Members" />
+      <End Role="Articles" EntitySet="Articles" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

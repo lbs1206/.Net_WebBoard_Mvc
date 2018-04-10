@@ -1,0 +1,74 @@
+﻿@using HomePage.Models;
+
+@model HomePage.Models.MemberVO
+
+@{
+    ViewBag.Title = "Login";
+}
+
+<h2>로그인</h2>
+
+
+<form method="post" action="@Url.Action("Login","Login")" class="wpcf7-form">
+    <table class="table">
+        <tr>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <td>아이디</td>
+            <td>@Html.TextBoxFor(m => m.MemberID, new { placeholder = "아이디를 입력하세요." })</td>
+        </tr>
+        <tr>
+            <td>비밀번호</td>
+            <td>@Html.TextBoxFor(m => m.MemberPWD, new { placeholder = "암호를 입력하세요." })</td>
+            <td></td>
+        </tr>
+
+    </table>
+
+    <div class="dividewhite2"></div>
+    <div class="field text-center">
+        <button type="submit" id="btnSave" onclick="return fnSaveCheck();" class="btn btn-lg btn-lgr-str">로그인</button>
+        <button type="button" id="btnBack" onclick="return history.back();" class="btn btn-lg btn-lgr-str">취소</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            
+
+            var result = '@ViewBag.Result';
+            if (result == 'OK') {
+                alert("정상적으로 로그인되었습니다.");
+                location.href = "/Home";
+                
+            }
+
+            if (result == 'FAIL') {
+                alert("로그인에 실패하였습니다.");
+            }
+        });
+
+        //저장 유효성검사
+        function fnSaveCheck() {
+
+            if ($("#MemberID").val() == "") {
+                alert("아이디를 입력해주십시오.")
+                $("#MemberID").focus();
+                return false;
+            }
+            if ($("#MemberPWD").val() == "") {
+                alert("암호를 입력해주십시오.")
+                $("#MemberPWD").focus();
+                return false;
+            }
+            return true;
+        }
+
+        
+
+    </script>
+}
