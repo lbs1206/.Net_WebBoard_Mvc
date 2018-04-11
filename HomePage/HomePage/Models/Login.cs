@@ -9,7 +9,7 @@ namespace HomePage.Models
 {
     public class Login
     {
-        private const string conn = @"Data Source =.\SQLEXPRESS; uid =lbs; pwd =mini1234!; Initial Catalog =HomePage;";
+        private const string conn = @"Data Source =.\SQLEXPRESS; uid =uid; pwd =pwd; Initial Catalog =HomePage;";
         string connectionString = conn;
 
         SqlConnection scon = null;
